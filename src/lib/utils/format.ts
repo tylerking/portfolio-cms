@@ -1,6 +1,9 @@
-const compact = new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 })
+let compact: Intl.NumberFormat | undefined
 
-export const formatCompact = (value: number) => compact.format(value)
+export function formatCompact(value: number): string {
+	compact ??= new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 })
+	return compact.format(value)
+}
 
 export function formatPercent(ratio: number): string {
 	return `${(ratio * 100).toFixed(1)}%`

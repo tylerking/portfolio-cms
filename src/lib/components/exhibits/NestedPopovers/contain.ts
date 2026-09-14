@@ -20,7 +20,6 @@ export const containInStage: Attachment<HTMLElement> = (level) => {
 			measure()
 		})
 	}
-	measure()
 	const observer = new ResizeObserver(measure)
 	observer.observe(stage)
 	level.addEventListener('beforetoggle', measure)

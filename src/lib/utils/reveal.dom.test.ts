@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { revealOnScroll } from './reveal'
 
 let reduced = false
-let notify: (entries: { isIntersecting: boolean }[]) => void = () => {}
+let notify: (entries: { isIntersecting: boolean; boundingClientRect: { top: number } }[]) => void = () => {}
 const disconnect = vi.fn()
 
 beforeEach(() => {
@@ -25,70 +25,59 @@ afterEach(() => {
 	vi.unstubAllGlobals()
 })
 
-const row = (top: number) => {
-	const element = document.createElement('div')
-	element.getBoundingClientRect = () => ({ top }) as DOMRect
-	return element
-}
+const BELOW = window.innerHeight + 200
 
-const measured = () => new Promise<void>((resolve) => queueMicrotask(resolve))
+const report = (top: number, isIntersecting = false) => notify([{ isIntersecting, boundingClientRect: { top } }])
 
 describe('revealOnScroll', () => {
-	it('hides a row below the fold until it scrolls into view', async () => {
-		const element = row(window.innerHeight + 200)
+	it('hides a row below the fold until it scrolls into view', () => {
+		const element = document.createElement('div')
 		revealOnScroll(element)
-		await measured()
+		report(BELOW)
 		expect(element.dataset.reveal).toBe('')
-		notify([{ isIntersecting: false }])
+		report(BELOW - 100)
 		expect(element.hasAttribute('data-reveal')).toBe(true)
-		notify([{ isIntersecting: true }])
+		report(100, true)
 		expect(element.hasAttribute('data-reveal')).toBe(false)
 		expect(disconnect).toHaveBeenCalled()
 	})
 
-	it('measures every row before hiding any, so the rows cost one layout between them', async () => {
-		const rows = [1, 2, 3].map(() => row(window.innerHeight + 200))
-		const hiddenAtRead: boolean[] = []
-		for (const element of rows) {
-			element.getBoundingClientRect = () => {
-				hiddenAtRead.push(rows.some((candidate) => candidate.hasAttribute('data-reveal')))
-				return { top: window.innerHeight + 200 } as DOMRect
-			}
-			revealOnScroll(element)
-		}
-		await measured()
-		expect(hiddenAtRead).toEqual([false, false, false])
-		expect(rows.every((element) => element.dataset.reveal === '')).toBe(true)
+	it('reads position from the observer, so hydrating the rows forces no layout', () => {
+		const element = document.createElement('div')
+		const measure = vi.spyOn(element, 'getBoundingClientRect')
+		revealOnScroll(element)
+		report(BELOW)
+		expect(measure).not.toHaveBeenCalled()
+		expect(element.dataset.reveal).toBe('')
 	})
 
-	it('stops observing a row that unmounts before it is revealed', async () => {
-		const cleanup = revealOnScroll(row(window.innerHeight + 200))
-		await measured()
+	it('stops observing a row that unmounts before it is revealed', () => {
+		const element = document.createElement('div')
+		const cleanup = revealOnScroll(element)
+		report(BELOW)
 		cleanup?.()
 		expect(disconnect).toHaveBeenCalledOnce()
 	})
 
-	it('never measures or hides a row that unmounts before the batch runs', async () => {
-		const element = row(window.innerHeight + 200)
-		const measure = vi.spyOn(element, 'getBoundingClientRect')
+	it('never hides a row that unmounts before its first report', () => {
+		const element = document.createElement('div')
 		revealOnScroll(element)?.()
-		await measured()
-		expect(measure).not.toHaveBeenCalled()
+		expect(disconnect).toHaveBeenCalledOnce()
 		expect(element.hasAttribute('data-reveal')).toBe(false)
 	})
 
-	it('never hides a row that is already on screen', async () => {
-		const element = row(10)
+	it('never hides a row that is already on screen, and stops watching it', () => {
+		const element = document.createElement('div')
 		revealOnScroll(element)
-		await measured()
+		report(10, true)
 		expect(element.hasAttribute('data-reveal')).toBe(false)
+		expect(disconnect).toHaveBeenCalledOnce()
 	})
 
-	it('never hides anything under reduced motion', async () => {
+	it('never hides anything under reduced motion', () => {
 		reduced = true
-		const element = row(window.innerHeight + 200)
+		const element = document.createElement('div')
 		expect(revealOnScroll(element)).toBeUndefined()
-		await measured()
 		expect(element.hasAttribute('data-reveal')).toBe(false)
 	})
 })

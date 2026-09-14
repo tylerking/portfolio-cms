@@ -80,11 +80,11 @@
 		const root = document.documentElement
 		let measured = 0
 		const observer = new ResizeObserver(() => {
+			wide = !!primaryNavigation && getComputedStyle(primaryNavigation).display !== 'none'
 			if (element.offsetHeight !== measured) {
 				measured = element.offsetHeight
 				root.style.setProperty(headerHeightProperty, `${measured}px`)
 			}
-			wide = !!primaryNavigation && getComputedStyle(primaryNavigation).display !== 'none'
 		})
 		observer.observe(element)
 		return () => {

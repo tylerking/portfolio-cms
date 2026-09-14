@@ -43,21 +43,36 @@ const stageWith = (bounds: Partial<DOMRect>) => {
 	return { stage, level }
 }
 
+const attached = (level: HTMLElement) => {
+	const cleanup = containInStage(level)
+	resize()
+	return cleanup
+}
+
 const read = (stage: HTMLElement) =>
 	['--popover-center', '--popover-top', '--popover-width', '--popover-height'].map((name) =>
 		stage.style.getPropertyValue(name)
 	)
 
 describe('containInStage', () => {
+	it('leaves the first measurement to the observer, so attaching forces no layout', () => {
+		const { stage, level } = stageWith({})
+		const measure = vi.spyOn(stage, 'getBoundingClientRect')
+		containInStage(level)
+		expect(measure).not.toHaveBeenCalled()
+		resize()
+		expect(measure).toHaveBeenCalledOnce()
+	})
+
 	it('writes the stage box in document coordinates, so the levels scroll with it', () => {
 		const { stage, level } = stageWith({})
-		containInStage(level)
+		attached(level)
 		expect(read(stage)).toEqual(['270px', '350px', '300px', '200px'])
 	})
 
 	it('measures again when the stage resizes', () => {
 		const { stage, level } = stageWith({})
-		containInStage(level)
+		attached(level)
 		stage.getBoundingClientRect = () => ({ left: 0, top: 0, width: 400, height: 267 }) as DOMRect
 		resize()
 		expect(read(stage)).toEqual(['220px', '300px', '400px', '267px'])
@@ -65,7 +80,7 @@ describe('containInStage', () => {
 
 	it('measures again on open, since anything above can push the stage down', () => {
 		const { stage, level } = stageWith({})
-		containInStage(level)
+		attached(level)
 		stage.getBoundingClientRect = () => ({ left: 100, top: 400, width: 300, height: 200 }) as DOMRect
 		level.dispatchEvent(new Event('beforetoggle'))
 		expect(read(stage)).toEqual(['270px', '700px', '300px', '200px'])
@@ -73,7 +88,7 @@ describe('containInStage', () => {
 
 	it('measures again when the window resizes, since a centred stage can move without changing size', () => {
 		const { stage, level } = stageWith({})
-		containInStage(level)
+		attached(level)
 		stage.getBoundingClientRect = () => ({ left: 180, top: 50, width: 300, height: 200 }) as DOMRect
 		window.dispatchEvent(new Event('resize'))
 		nextFrame()
@@ -82,7 +97,7 @@ describe('containInStage', () => {
 
 	it('measures once per frame however many resize events arrive', () => {
 		const { stage, level } = stageWith({})
-		containInStage(level)
+		attached(level)
 		const measure = vi.spyOn(stage, 'getBoundingClientRect')
 		window.dispatchEvent(new Event('resize'))
 		window.dispatchEvent(new Event('resize'))
@@ -94,7 +109,7 @@ describe('containInStage', () => {
 
 	it('stops measuring once the level unmounts', () => {
 		const { stage, level } = stageWith({})
-		const cleanup = containInStage(level)
+		const cleanup = attached(level)
 		cleanup?.()
 		expect(disconnect).toHaveBeenCalledOnce()
 		stage.getBoundingClientRect = () => ({ left: 0, top: 0, width: 400, height: 267 }) as DOMRect
