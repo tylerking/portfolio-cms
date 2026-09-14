@@ -31,7 +31,7 @@ const config = {
 	kit: {
 		adapter: adapter(),
 		csp,
-		inlineStyleThreshold: 4096,
+		inlineStyleThreshold: 13000,
 		typescript: {
 			config: (config) => ({ ...config, include: [...config.include, '../*.ts', '../*.js', '../scripts/**/*.ts'] })
 		}

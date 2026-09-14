@@ -189,7 +189,9 @@ is set. Rate-limit rows hold an HMAC of the IP address, never the address itself
 events are kept until deleted in the admin.
 
 Google Tag Manager (`GTM-TGG4R456`) also loads from
-`static/gtm.js`. It skips `/admin` paths and localhost, so dev and e2e runs send nothing to
+`static/gtm.js`, after the visitor's first scroll, tap or key press, so Google's scripts stay
+out of the initial load. Visitors who leave without interacting reach the first-party beacon
+but not GA4. It skips `/admin` paths and localhost, so dev and e2e runs send nothing to
 Google. Whatever the container fires, such as GA4, sets Google's own cookies and does not
 honour Do Not Track.
 
