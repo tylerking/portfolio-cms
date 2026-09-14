@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang='en'>
+	<head>
+		<meta charset='utf-8' />
+		<meta name='viewport' content='width=device-width, initial-scale=1' />
+		<title>%sveltekit.status% · Something went wrong</title>
+		<meta name='theme-color' content='#08090d' media='(prefers-color-scheme: dark)' />
+		<meta name='theme-color' content='#f6f6f3' media='(prefers-color-scheme: light)' />
+		<style>
+			@font-face {
+				font-family: 'Recursive';
+				src: url('/fonts/recursive-latin-ee841c65.woff2') format('woff2');
+				font-display: optional;
+			}
+			@font-face {
+				font-family: 'Recursive Fallback Sans';
+				src: local('Arial'), local('Helvetica Neue'), local('Liberation Sans');
+				size-adjust: 106%;
+				ascent-override: 95%;
+				descent-override: 26%;
+				line-gap-override: 0%;
+			}
+			:root {
+				color-scheme: dark;
+				--background: #08090d;
+				--foreground: #e8eaf0;
+			}
+			@media (prefers-color-scheme: light) {
+				:root {
+					color-scheme: light;
+					--background: #f6f6f3;
+					--foreground: #15171d;
+				}
+			}
+			body {
+				margin: 0;
+				min-height: 100svh;
+				display: grid;
+				place-content: center;
+				padding: 24px;
+				font: 16px/1.5 'Recursive', 'Recursive Fallback Sans', ui-sans-serif, system-ui, sans-serif;
+				font-variation-settings: 'MONO' 0, 'CASL' 0, 'CRSV' 0;
+				background: var(--background);
+				color: var(--foreground);
+			}
+			main {
+				display: grid;
+				gap: 12px;
+				overflow-wrap: anywhere;
+			}
+			a {
+				color: inherit;
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<h1>Something went wrong</h1>
+			<p>Error %sveltekit.status%: %sveltekit.error.message%</p>
+			<p><a href='/'>Back home</a></p>
+		</main>
+	</body>
+</html>
