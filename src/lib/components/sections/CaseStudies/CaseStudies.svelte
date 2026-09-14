@@ -56,12 +56,12 @@
 				<div
 					class={[rowHover, styles.row, fold(index)]}>
 					<span
-						aria-hidden='true'
+						aria-hidden={caseStudy.coverKey ? undefined : 'true'}
 						class={[ledgerThumbnail, styles.cover]}>
 						{#if caseStudy.coverKey}
 							{@const thumbnail = picture(caseStudy.coverKey, THUMBNAIL.largest)}
 							<img
-								alt=''
+								alt={caseStudy.coverAlt}
 								class={ledgerThumbnailImage}
 								decoding='async'
 								height={THUMBNAIL.height}
