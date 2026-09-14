@@ -26,8 +26,8 @@ function seedCover(file: string): string | null {
 	return onNetlify ? null : `seed-${file}`
 }
 
-const figures = (...list: [file: string, title: string, description: string][]) =>
-	list.map(([file, title, description]) => ({ id: randomUUID(), key: seedCover(file), title, description, alt: '' }))
+const figures = (...list: [file: string, title: string, description: string, alt: string][]) =>
+	list.map(([file, title, description, alt]) => ({ id: randomUUID(), key: seedCover(file), title, description, alt }))
 
 async function main(db: Transaction) {
 	await db.delete(tables.exhibits)
@@ -233,10 +233,12 @@ async function main(db: Transaction) {
 					meta('Scope', 'App, CMS, analytics, design system')
 				],
 				coverKey: seedCover('portfolio-leads.png'),
+				coverAlt: 'A screenshot of the dashboard leads section.',
 				figures: figures([
 					'portfolio-dashboard.png',
 					'Admin dashboard with sample data',
-					'Stat tiles and leads by week from the first-party event beacon, with the real-or-mock toggle set to sample data.'
+					'Stat tiles and leads by week from the first-party event beacon, with the real-or-mock toggle set to sample data.',
+					'Admin dashboard with four stat tiles (3 unanswered leads, 14 leads this month, 52 resume downloads, 1.7% contact rate), a stacked column chart of leads over twelve weeks, and bar lists of top pages and referring sites.'
 				]),
 				sections: [
 					section(
@@ -279,36 +281,43 @@ async function main(db: Transaction) {
 					meta('Scope', 'Creation, handoff, provisioning')
 				],
 				coverKey: seedCover('array.png'),
+				coverAlt: 'A sales engineer showing a client demo on their mobile phone.',
 				figures: figures(
 					[
 						'client-demo-1-list.png',
 						'Every demo and the state it is in',
-						'Live, building, failed, and expired demos in one list, with the step a failed run stopped at and the date each one expires.'
+						'Live, building, failed, and expired demos in one list, with the step a failed run stopped at and the date each one expires.',
+						'Client Demos list: counts of 2 live, 1 building, 1 needing attention and 1 expiring soon, above a table of five clients with creator, date, platform, products, sessions, viewers and status.'
 					],
 					[
 						'client-demo-2-create.png',
 						'Step one: identity and shell',
-						'The first of four steps, with a live preview of the shell and a running summary of what the run will create.'
+						'The first of four steps, with a live preview of the shell and a running summary of what the run will create.',
+						'Create client prototype, step 1 of 4: client name and URL fields, a logo upload and a choice of Portal, Vantage or Perch shell, beside a live preview of the shell and a summary of the run.'
 					],
 					[
 						'client-demo-3-review.png',
 						'Step four: what the run will write',
-						'Every operation the run will perform, in order and named by the service that owns it. Nothing is written until the confirm.'
+						'Every operation the run will perform, in order and named by the service that owns it. Nothing is written until the confirm.',
+						'Create client prototype, step 4 of 4: six numbered operations from creating the Portal user to publishing to demos.inlay.com, each tagged with the service that performs it, above a Create prototype button.'
 					],
 					[
 						'client-demo-4-building.png',
 						'The build, step by step',
-						'Each provisioning step reports as it lands, and the run keeps going if the page is closed.'
+						'Each provisioning step reports as it lands, and the run keeps going if the page is closed.',
+						'Building Foundry prototype: a progress bar over seven steps, the first three checked with their timings, the fourth in progress and the last three waiting, with Run in background and Skip to result buttons.'
 					],
 					[
 						'client-demo-5-handoff.png',
 						'Handoff, beside what was created',
-						'The credentials to pass on, next to a record of everything the run wrote and when the environment expires.'
+						'The credentials to pass on, next to a record of everything the run wrote and when the environment expires.',
+						'Foundry prototype is live: prototype URL, login email, password and shell, each with a copy button, beside a checklist of the five things the run created.'
 					],
 					[
 						'client-demo-6-detail.png',
 						'A demo part way through its build',
-						'The configuration as saved, the step the build is on, and the activity that got it there.'
+						'The configuration as saved, the step the build is on, and the activity that got it there.',
+						'Foundry demo detail: a configuration table of URL, platform, products and theme, an activity log, and a Building now panel reporting step 4 of 7.'
 					]
 				),
 				sections: [
@@ -355,13 +364,20 @@ async function main(db: Transaction) {
 					meta('Scope', 'Full stack provisioned per CI run')
 				],
 				coverKey: seedCover('learnewable.jpg'),
+				coverAlt: 'A group of wind turbines in a green pasture next to a winding pathway.',
 				figures: figures(
 					[
 						'learnewable-e2e-tests.png',
 						'E2E Test Environment Architecture',
-						'Test system structure showing isolated services and teardown flow.'
+						'Test system structure showing isolated services and teardown flow.',
+						'Diagram: Developer or CI starts an ephemeral test environment where Cypress end-to-end tests drive the application under test, which reads a seeded database, and the environment reports test results.'
 					],
-					['learnewable-dashboard.png', 'Learnewable Dashboard', 'The Learnewable platform dashboard design']
+					[
+						'learnewable-dashboard.png',
+						'Learnewable Dashboard',
+						'The Learnewable platform dashboard design',
+						'Learnewable dashboard for the Big Leaf Solar project: status, capacity, storage and location tiles above a world map of stakeholder locations, bar and pie charts of stakeholder sentiment, and a line chart of interaction sentiment by week.'
+					]
 				),
 				sections: [
 					section(
@@ -407,16 +423,19 @@ async function main(db: Transaction) {
 					meta('Scope', 'Dashboard IA and front-end rebuild')
 				],
 				coverKey: seedCover('mobius-risk-group.png'),
+				coverAlt: 'Energy executives working in a board room.',
 				figures: figures(
 					[
 						'risknet-dashboard-before.jpg',
 						'Risknet v1 Dashboard',
-						'Before: A data-heavy layout built for reporting, with little visual hierarchy or prioritization.'
+						'Before: A data-heavy layout built for reporting, with little visual hierarchy or prioritization.',
+						'Risknet v1 dashboard: dense tables of counterparty risk exposure, commodity risk limits with one row highlighted in orange, and invoices, each under a dark blue panel header.'
 					],
 					[
 						'risknet-dashboard-after.png',
 						'Risknet v2 Dashboard',
-						'After: A clearer, task-focused overview designed around how people actually use the system.'
+						'After: A clearer, task-focused overview designed around how people actually use the system.',
+						'Risknet v2 overview: four tinted tiles for dashboards, metrics, reports and documents, a news row, a recent activity timeline, a task list, a calendar and a corporate progress ring chart.'
 					]
 				),
 				sections: [
@@ -463,16 +482,19 @@ async function main(db: Transaction) {
 					meta('Scope', 'Report IA, visual system, and rendering pipeline')
 				],
 				coverKey: seedCover('phylos-bioscience.png'),
+				coverAlt: 'A small batch of cannabis seedlings in a research greenhouse.',
 				figures: figures(
 					[
 						'genotype-report-mobile.webp',
 						'Redesigned Genotype Report',
-						'Clearer structure, improved responsiveness, and more approachable presentation of complex genetic data.'
+						'Clearer structure, improved responsiveness, and more approachable presentation of complex genetic data.',
+						'The redesigned genotype report on a phone: a Phylos Tested seal on a teal card, then the variety name Trident with who submitted it and the test date.'
 					],
 					[
 						'genotype-report.png',
 						'Closest Genetic Relatives',
-						'The report header and the closest genetic relatives, ordered by relatedness.'
+						'The report header and the closest genetic relatives, ordered by relatedness.',
+						'Genotype report for G-GSVXU: a teal header with the Phylos Tested seal and test details, above a list of its 36 closest genetic relatives with clone counts beside some names.'
 					]
 				),
 				sections: [
