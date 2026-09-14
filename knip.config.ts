@@ -2,7 +2,7 @@ import type { KnipConfig } from 'knip'
 import { compile, parse } from 'svelte/compiler'
 
 export default {
-	entry: ['tests/e2e/serve.ts', 'tests/e2e/*.setup.ts'],
+	entry: ['tests/e2e/serve.ts', 'tests/e2e/*.setup.ts', 'static/gtm.js'],
 	compilers: {
 		svelte: (text: string, filename: string) => {
 			const ast = parse(text, { modern: true })
