@@ -184,15 +184,21 @@ The rules it is built on, worth keeping if you change the values:
 The public site sends first-party beacons to `POST /api/event` (pageviews, resume downloads,
 outbound clicks); the contact action records leads itself. The endpoint accepts only same-origin
 JSON, is rate limited, ignores bots and `/admin` paths, keeps only the referrer's hostname, and
-strips query strings from outbound links. Do Not Track is respected, and no cookie is set.
-Rate-limit rows hold an HMAC of the IP address, never the address itself. Leads and events are
-kept until deleted in the admin.
+strips query strings from outbound links. Do Not Track is respected, and no first-party cookie
+is set. Rate-limit rows hold an HMAC of the IP address, never the address itself. Leads and
+events are kept until deleted in the admin.
+
+Google Tag Manager (`GTM-TGG4R456`) also loads from
+`static/gtm.js`. It skips `/admin` paths and localhost, so dev and e2e runs send nothing to
+Google. Whatever the container fires, such as GA4, sets Google's own cookies and does not
+honour Do Not Track.
 
 ## Security
 
 Security headers are defined once in `_headers`. Netlify applies them to static files
 and `hooks.server.ts` adds them to every rendered response, together with a hash-based CSP that
-allows only same-origin scripts and SvelteKit's own inline scripts. Admin routes are guarded by their resolved
+allows only same-origin scripts, SvelteKit's own inline scripts and Google Tag Manager. A GTM
+tag that injects inline script (Custom HTML) is blocked; the Google hosts GA4 needs are allowed. Admin routes are guarded by their resolved
 route id, so encoded paths such as `/%61dmin` cannot slip past, and every admin action checks
 the session again.
 

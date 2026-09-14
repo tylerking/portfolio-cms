@@ -6,12 +6,18 @@ const csp = {
 	mode: 'hash',
 	directives: {
 		'default-src': ['self'],
-		'script-src': ['self'],
+		'script-src': ['self', 'https://www.googletagmanager.com'],
 		// 'unsafe-inline' stays for styles: inline style="" attributes cannot be hashed or nonced.
 		'style-src': ['self', 'unsafe-inline'],
 		'font-src': ['self'],
-		'img-src': ['self', 'data:'],
-		'connect-src': ['self'],
+		'img-src': ['self', 'data:', 'https://*.google-analytics.com', 'https://*.googletagmanager.com'],
+		'connect-src': [
+			'self',
+			'https://*.google-analytics.com',
+			'https://*.analytics.google.com',
+			'https://*.googletagmanager.com'
+		],
+		'frame-src': ['https://www.googletagmanager.com'],
 		'base-uri': ['self'],
 		'form-action': ['self'],
 		'frame-ancestors': ['none'],
