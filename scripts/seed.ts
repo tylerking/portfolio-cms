@@ -150,7 +150,7 @@ async function main(db: Transaction) {
 				description:
 					"American Bestiary is an illustrated field guide to fifty cryptids, one per state, kept as a naturalist's folio. Each legend is recorded with a straight face, then glossed with what the evidence says.",
 				tags: ['TypeScript', 'SvelteKit', 'MongoDB', 'GraphQL'],
-				url: 'https://american-bestiary.netlify.app/',
+				url: 'https://americanbestiary.com',
 				coverKey: seedCover('american-bestiary.png'),
 				coverAlt:
 					'A parchment map of the United States titled Tabula of the Continent and Its Beasts, with a dot on every state and Oregon filled in red.'
