@@ -60,12 +60,13 @@ export const altSchema = z
 	.max(300)
 	.min(1, 'text is required')
 export const caseFigureSchema = z.object({
-	key: text(120).min(1, 'is required'),
+	id: text(60).min(1, 'is required'),
+	key: text(120).nullable(),
 	title: text(120).min(1, 'is required'),
 	description: text(400),
 	alt: altSchema
 })
-export const figureMoveSchema = z.object({ key: text(120).min(1, 'is required'), direction: z.enum(['up', 'down']) })
+export const figureMoveSchema = z.object({ id: text(60).min(1, 'is required'), direction: z.enum(['up', 'down']) })
 export const socialSchema = z.object({
 	label: text(50).min(1, 'is required'),
 	href: safeUrl(300).min(1, 'is required')

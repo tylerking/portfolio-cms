@@ -27,8 +27,6 @@
 		index?: number
 		open?: boolean
 		id?: string
-		loading?: 'lazy' | 'eager'
-		fetchpriority?: 'high' | 'auto'
 		imageClass?: string
 		class?: ClassValue
 	}
@@ -46,8 +44,6 @@
 		index = $bindable(0),
 		open = $bindable(false),
 		id,
-		loading = 'lazy',
-		fetchpriority,
 		imageClass,
 		class: className
 	}: Props = $props()
@@ -114,9 +110,8 @@
 			alt=''
 			class={imageClass}
 			decoding='async'
-			{fetchpriority}
 			{height}
-			{loading}
+			loading='lazy'
 			{sizes}
 			src={item.src}
 			srcset={item.srcset}

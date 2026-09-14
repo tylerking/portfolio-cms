@@ -4,14 +4,14 @@
 	import Text from '$lib/components/elements/Text'
 	import { getLabels } from '$lib/labels/labels'
 	import { picture } from '$lib/media'
-	import { ledgerList } from '$lib/styles/patterns.css'
+	import { ledgerList, ledgerThumbnail, ledgerThumbnailImage } from '$lib/styles/patterns.css'
 	import { rowHover, screenReaderOnly } from '$lib/styles/recipes.css'
 	import { breakpoint } from '$lib/styles/tokens'
-	import type { CaseFigure } from '$lib/types'
+	import type { ShownFigure } from '$lib/types'
 	import { padTwoDigits } from '$lib/utils/format'
 	import * as styles from './CaseFigures.css'
 
-	let { figures, headingId }: { figures: CaseFigure[]; headingId: string } = $props()
+	let { figures, headingId }: { figures: ShownFigure[]; headingId: string } = $props()
 
 	const labels = $derived.by(getLabels())
 	const gallery = $props.id()
@@ -33,13 +33,13 @@
 	let open = $state(false)
 </script>
 
-{#snippet body(figure: CaseFigure, index: number)}
+{#snippet body(figure: ShownFigure, index: number)}
 	{@const thumbnail = picture(figure.key, THUMBNAIL_WIDTH)}
 	<span
-		class={styles.thumbnail}>
+		class={ledgerThumbnail}>
 		<img
 			alt=''
-			class={styles.thumbnailImage}
+			class={ledgerThumbnailImage}
 			decoding='async'
 			height={RATIO.height}
 			loading='lazy'
@@ -82,7 +82,7 @@
 
 <div
 	class={ledgerList}>
-	{#each figures as figure, index (figure.key)}
+	{#each figures as figure, index (figure.id)}
 		<button
 			aria-describedby={figure.description ? `${gallery}-description-${index}` : undefined}
 			class={[rowHover, styles.row]}

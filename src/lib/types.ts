@@ -17,6 +17,7 @@ export type ExhibitStatus = z.infer<typeof exhibitStatusSchema>
 export type CaseMeta = z.infer<typeof caseMetaSchema>
 export type CaseSection = z.infer<typeof caseSectionSchema>
 export type CaseFigure = z.infer<typeof caseFigureSchema>
+export type ShownFigure = CaseFigure & { key: string }
 export type Social = z.infer<typeof socialSchema>
 export type Labels = z.infer<typeof labelsSchema>
 export type Section = z.infer<typeof sectionSchema>

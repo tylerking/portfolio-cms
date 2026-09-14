@@ -6,8 +6,10 @@
 	import Text from '$lib/components/elements/Text'
 	import SectionHeader from '$lib/components/layout/SectionHeader'
 	import { getLabels } from '$lib/labels/labels'
-	import { balanced, breakable, ledgerList } from '$lib/styles/patterns.css'
+	import { picture } from '$lib/media'
+	import { balanced, breakable, ledgerList, ledgerThumbnail, ledgerThumbnailImage } from '$lib/styles/patterns.css'
 	import { rowHover } from '$lib/styles/recipes.css'
+	import { breakpoint } from '$lib/styles/tokens'
 	import type { CaseStudy } from '$lib/types'
 	import { caseSlug, morphName } from '$lib/utils/transition'
 	import * as styles from './CaseStudies.css'
@@ -23,6 +25,7 @@
 
 	const labels = $derived.by(getLabels())
 	const TAGS_SHOWN = 3
+	const THUMBNAIL = { width: 1600, height: 1000, largest: 320, sizes: `(max-width: ${breakpoint.small}) 90px, 128px` }
 
 	let morphing = $state<string | null>(null)
 
@@ -52,6 +55,23 @@
 			{#each cases as caseStudy, index (caseStudy.id)}
 				<div
 					class={[rowHover, styles.row, fold(index)]}>
+					<span
+						aria-hidden='true'
+						class={[ledgerThumbnail, styles.cover]}>
+						{#if caseStudy.coverKey}
+							{@const thumbnail = picture(caseStudy.coverKey, THUMBNAIL.largest)}
+							<img
+								alt=''
+								class={ledgerThumbnailImage}
+								decoding='async'
+								height={THUMBNAIL.height}
+								loading='lazy'
+								sizes={THUMBNAIL.sizes}
+								src={thumbnail.src}
+								srcset={thumbnail.srcset}
+								width={THUMBNAIL.width} />
+						{/if}
+					</span>
 					<div
 						class={breakable}>
 						<Text

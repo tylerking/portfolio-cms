@@ -41,6 +41,28 @@ export const figureFrame = style({
 	overflow: 'hidden'
 })
 
+const THUMBNAIL = space[20]
+const THUMBNAIL_NARROW = space[14]
+
+export const ledgerThumbnail = style([
+	figureFrame,
+	{
+		flex: 'none',
+		display: 'block',
+		width: `calc(${THUMBNAIL} * 1.6)`,
+		height: THUMBNAIL,
+		...below('small', { width: `calc(${THUMBNAIL_NARROW} * 1.6)`, height: THUMBNAIL_NARROW })
+	}
+])
+
+export const ledgerThumbnailImage = style({
+	display: 'block',
+	width: '100%',
+	height: '100%',
+	objectFit: 'cover',
+	objectPosition: 'top'
+})
+
 export const captionGrid = style({
 	display: 'grid',
 	columnGap: space[3.5],

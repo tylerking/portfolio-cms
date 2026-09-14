@@ -193,7 +193,7 @@ describe('cascading deletes', () => {
 	it('remove a case study with its cover and every figure', async () => {
 		const study = await insertCase({
 			coverKey: 'cover.png',
-			figures: [{ key: 'figure.png', title: 'F', description: '', alt: '' }]
+			figures: [{ id: 'figure', key: 'figure.png', title: 'F', description: '', alt: '' }]
 		})
 		await destroyCaseStudy(study.id)
 		await expect(destroyCaseStudy(study.id)).resolves.toBeUndefined()

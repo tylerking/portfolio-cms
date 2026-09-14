@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import { randomUUID } from 'node:crypto'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import pg from 'pg'
 import { labelsSchema } from '../src/lib/schemas'
@@ -19,17 +20,14 @@ type Transaction = Parameters<Parameters<typeof base.transaction>[0]>[0]
 const meta = (label: string, value: string) => ({ label, value })
 const section = (tag: string, heading: string, ...paragraphs: string[]) => ({ tag, heading, paragraphs })
 
-// Netlify Blobs need credentials, so on deploy covers are uploaded from admin instead.
+// Netlify Blobs need credentials, so on deploy images are uploaded from admin instead.
 const onNetlify = !!(process.env.NETLIFY || process.env.NETLIFY_BLOBS_CONTEXT)
 function seedCover(file: string): string | null {
 	return onNetlify ? null : `seed-${file}`
 }
 
 const figures = (...list: [file: string, title: string, description: string, alt: string][]) =>
-	list.flatMap(([file, title, description, alt]) => {
-		const key = seedCover(file)
-		return key ? [{ key, title, description, alt }] : []
-	})
+	list.map(([file, title, description, alt]) => ({ id: randomUUID(), key: seedCover(file), title, description, alt }))
 
 async function main(db: Transaction) {
 	await db.delete(tables.exhibits)
@@ -234,6 +232,9 @@ async function main(db: Transaction) {
 					meta('Stack', 'SvelteKit · Postgres · Netlify'),
 					meta('Scope', 'App, CMS, analytics, design system')
 				],
+				coverKey: seedCover('portfolio-leads.png'),
+				coverAlt:
+					'Leads by week: twelve weeks of stacked columns split by reason into New Project, Consultation, Collaboration and General, peaking at seven leads in the week of 7/13.',
 				figures: figures([
 					'portfolio-dashboard.png',
 					'Admin dashboard with sample data',
@@ -280,6 +281,9 @@ async function main(db: Transaction) {
 					meta('Stack', 'SvelteKit · TypeScript'),
 					meta('Scope', 'Creation, handoff, provisioning')
 				],
+				coverKey: seedCover('array.png'),
+				coverAlt:
+					'A hand holding a phone that shows a credit report: a FICO Score 4 of 668 rated good, a score history chart, and the factors behind the score.',
 				figures: figures(
 					[
 						'client-demo-1-list.png',
@@ -361,6 +365,9 @@ async function main(db: Transaction) {
 					meta('Stack', 'Laravel · Cypress · Docker'),
 					meta('Scope', 'Full stack provisioned per CI run')
 				],
+				coverKey: seedCover('learnewable.jpg'),
+				coverAlt:
+					'Six white wind turbines along a forested hillside under a clear blue sky, with a dirt road winding up the slope.',
 				figures: figures(
 					[
 						'learnewable-e2e-tests.png',
@@ -418,6 +425,9 @@ async function main(db: Transaction) {
 					meta('Stack', 'React · TypeScript · Highcharts'),
 					meta('Scope', 'Dashboard IA and front-end rebuild')
 				],
+				coverKey: seedCover('mobius-risk-group.png'),
+				coverAlt:
+					'A team meeting around a white conference table, with a laptop showing a donut chart and a hand holding a pen over a notebook in the foreground.',
 				figures: figures(
 					[
 						'risknet-dashboard-before.jpg',
@@ -475,6 +485,8 @@ async function main(db: Transaction) {
 					meta('Stack', 'Vue · Express · Highcharts'),
 					meta('Scope', 'Report IA, visual system, and rendering pipeline')
 				],
+				coverKey: seedCover('phylos-bioscience.png'),
+				coverAlt: 'Rows of young cannabis seedlings growing in trays of soil.',
 				figures: figures(
 					[
 						'genotype-report-mobile.webp',

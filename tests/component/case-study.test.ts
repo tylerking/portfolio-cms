@@ -93,6 +93,21 @@ describe('the figures block', () => {
 			expect(row.querySelector('img')).toHaveAttribute('src', `/media/figure-${index + 1}.png`)
 		}
 	})
+
+	it('leaves out a figure that has no image yet', () => {
+		const figures = caseFigures(2).map((figure, index) => (index === 0 ? { ...figure, key: null } : figure))
+		renderWithLabels(CaseArticle, { study: caseStudy({ figures }), navigation: caseNavigation() })
+		const rows = screen.getAllByRole('button', { name: /^Enlarge image/ })
+		expect(rows).toHaveLength(1)
+		expect(rows[0]).toHaveTextContent('Figure 2')
+		expect(rows[0]).toHaveTextContent(`${DEFAULT_LABELS.figurePrefix}01`)
+	})
+
+	it('does not render at all while no figure has an image', () => {
+		const figures = caseFigures(2).map((figure) => ({ ...figure, key: null }))
+		renderWithLabels(CaseArticle, { study: caseStudy({ figures }), navigation: caseNavigation() })
+		expect(screen.queryByRole('heading', FIGURES_HEADING)).not.toBeInTheDocument()
+	})
 })
 
 describe('study to study navigation', () => {

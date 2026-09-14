@@ -1,14 +1,11 @@
 <script
 	lang='ts'>
 	import ArrowLabel from '$lib/components/elements/ArrowLabel'
-	import ImagePopover from '$lib/components/elements/ImagePopover'
 	import MetaBlock from '$lib/components/elements/MetaBlock'
 	import Text from '$lib/components/elements/Text'
 	import ULink from '$lib/components/elements/ULink'
 	import { getLabels } from '$lib/labels/labels'
-	import { picture } from '$lib/media'
-	import { breakpoint, layout } from '$lib/styles/tokens'
-	import type { CaseNavigation, CaseStudy } from '$lib/types'
+	import type { CaseNavigation, CaseStudy, ShownFigure } from '$lib/types'
 	import { morphName } from '$lib/utils/transition'
 	import * as styles from './CaseArticle.css'
 	import CaseBlock from './CaseBlock.svelte'
@@ -18,14 +15,12 @@
 
 	const labels = $derived.by(getLabels())
 	const figuresHeading = $props.id()
-	const COVER = { width: 1600, height: 900 }
-	const COVER_SIZES = `(max-width: ${breakpoint.medium}) 100vw, ${layout.articleWidth}`
 
 	const eyebrow = $derived(
 		`${labels.caseStamp} ${navigation.index + 1} / ${navigation.total}${study.year ? ` · ${study.year}` : ''}`
 	)
 	const meta = $derived([...study.meta, ...(study.year ? [{ label: labels.caseYear, value: study.year }] : [])])
-	const cover = $derived(study.coverKey ? picture(study.coverKey, 1920) : null)
+	const figures = $derived(study.figures.filter((figure): figure is ShownFigure => figure.key !== null))
 </script>
 
 <main
@@ -61,27 +56,6 @@
 					rows={meta} />
 			</CaseBlock>
 
-			{#if cover}
-				<CaseBlock
-					padding='block'
-					ruled>
-					<div
-						class={styles.cover}>
-						<ImagePopover
-							alt={study.coverAlt}
-							fetchpriority='high'
-							name={study.title}
-							sizes={COVER_SIZES}
-							src={cover.src}
-							srcset={cover.srcset}
-							{...COVER}
-							class={styles.coverTrigger}
-							imageClass={styles.coverImage}
-							loading='eager' />
-					</div>
-				</CaseBlock>
-			{/if}
-
 			{#each study.sections as section, sectionIndex (sectionIndex)}
 				<CaseBlock
 					padding='block'
@@ -99,14 +73,14 @@
 				</CaseBlock>
 			{/each}
 
-			{#if study.figures.length}
+			{#if figures.length}
 				<CaseBlock
 					padding='block'
 					ruled>
 					<section
 						aria-labelledby={figuresHeading}>
 						<CaseFigures
-							figures={study.figures}
+							{figures}
 							headingId={figuresHeading} />
 					</section>
 				</CaseBlock>

@@ -1,18 +1,15 @@
 <script
 	lang='ts'>
-	import { AdminPage, ConfirmButton, CreateForm, EntryIndex, FileField, FormError, RowForm, Sortable } from '$lib/components/admin'
+	import { AdminPage, ConfirmButton, CreateForm, EntryIndex, FileField, FormError, ImageThumbnail, RowForm, Sortable } from '$lib/components/admin'
 	import Button from '$lib/components/elements/Button'
 	import Text from '$lib/components/elements/Text'
 	import TextareaField from '$lib/components/elements/TextareaField'
 	import TextField from '$lib/components/elements/TextField'
-	import { picture } from '$lib/media'
 	import * as styles from '$lib/styles/admin.css'
 	import { fieldError } from '$lib/utils/forms'
 	import type { ActionData, PageData } from './$types'
 
 	let { data, form }: { data: PageData; form: ActionData } = $props()
-
-	const THUMBNAIL_WIDTH = 960
 </script>
 
 <AdminPage
@@ -88,22 +85,8 @@
 					value={project.url} />
 				<div
 					class={styles.coverRow}>
-					{#if project.coverKey}
-						{@const thumbnail = picture(project.coverKey, THUMBNAIL_WIDTH)}
-						<img
-							alt=''
-							class={styles.figureThumb}
-							decoding='async'
-							height='1000'
-							loading='lazy'
-							sizes={styles.figureThumbSizes}
-							src={thumbnail.src}
-							srcset={thumbnail.srcset}
-							width='1600' />
-					{:else}
-						<div
-							class={styles.figureThumb}></div>
-					{/if}
+					<ImageThumbnail
+						imageKey={project.coverKey} />
 					<div>
 						<Text
 							class={styles.label}

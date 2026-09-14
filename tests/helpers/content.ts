@@ -1,4 +1,4 @@
-import type { CaseFigure, CaseNavigation, CaseStudy } from '$lib/types'
+import type { CaseNavigation, CaseStudy, ShownFigure } from '$lib/types'
 
 export const caseStudy = (overrides: Partial<CaseStudy> = {}): CaseStudy => ({
 	id: 1,
@@ -27,8 +27,9 @@ export const caseNavigation = (overrides: Partial<CaseNavigation> = {}): CaseNav
 	...overrides
 })
 
-export const caseFigures = (count: number): CaseFigure[] =>
+export const caseFigures = (count: number): ShownFigure[] =>
 	Array.from({ length: count }, (_, index) => ({
+		id: `figure-${index + 1}`,
 		key: `figure-${index + 1}.png`,
 		title: `Figure ${index + 1}`,
 		description: `What figure ${index + 1} shows.`,

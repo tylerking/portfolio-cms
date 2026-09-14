@@ -113,7 +113,8 @@ once, then remove the last two.
 - **Approach**, **Exhibits**, **Side Projects**, **Skills:** sortable collections, edited in
   place on the list page. Side projects take a cover.
 - **Case Studies:** a sortable list into a per-study editor, because a case study has a page of
-  its own on the site. It takes a cover and ordered figures.
+  its own on the site. It takes a cover and ordered figures; a figure can be added before its
+  image and stays hidden on the site until one is uploaded.
 
 Section numbers, case indices, the SEO title and the hero name lines are derived, not edited.
 

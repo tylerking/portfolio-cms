@@ -7,13 +7,20 @@ import { layout, motion, space, touch } from '$lib/styles/tokens'
 export const row = style({
 	position: 'relative',
 	display: 'grid',
-	gridTemplateColumns: 'minmax(0, 1fr) auto',
+	gridTemplateColumns: 'auto minmax(0, 1fr) auto',
 	gap: space[7],
 	alignItems: 'center',
 	padding: `${space[6]} ${space[4]}`,
 	borderBottom: `1px solid ${theme.line}`,
-	...below('medium', { gridTemplateColumns: 'minmax(0, 1fr)', gap: space[2.5], padding: `${space[5]} 0` })
+	...below('medium', {
+		gridTemplateColumns: 'auto minmax(0, 1fr)',
+		columnGap: space[4],
+		rowGap: space[2.5],
+		padding: `${space[5]} 0`
+	})
 })
+
+export const cover = style(below('medium', { gridRow: 'span 2', alignSelf: 'start' }))
 
 export const link = style({
 	color: 'inherit',
@@ -45,7 +52,7 @@ export const meta = style({
 	flexDirection: 'column',
 	alignItems: 'flex-end',
 	gap: space[2],
-	...below('medium', { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: space[3] })
+	...below('medium', { gridColumn: 2, flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: space[3] })
 })
 
 export const tags = style({

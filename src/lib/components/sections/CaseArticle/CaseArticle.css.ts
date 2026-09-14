@@ -2,7 +2,7 @@ import { style, styleVariants } from '@vanilla-extract/css'
 import { breakable, measure, sectionIntro } from '$lib/styles/patterns.css'
 import { below, belowHeader, pageGutter } from '$lib/styles/rules'
 import { theme } from '$lib/styles/theme.css'
-import { layout, motion, radius, space } from '$lib/styles/tokens'
+import { layout, space } from '$lib/styles/tokens'
 
 const BODY_INSET = space[12]
 
@@ -60,27 +60,6 @@ export const heading = style({ marginBottom: space[4.5] })
 export const lead = style([sectionIntro, { marginBottom: space[8] }])
 
 export const meta = style({ maxWidth: 'none' })
-
-export const cover = style({
-	aspectRatio: '16 / 9',
-	background: theme.panelSecondary,
-	border: `1px solid ${theme.line}`,
-	borderRadius: radius.small,
-	position: 'relative',
-	overflow: 'hidden',
-	transition: `border-color ${motion.slow}`,
-	selectors: { '&:hover': { borderColor: theme.lineSecondary } }
-})
-
-export const coverTrigger = style({ position: 'absolute', inset: 0, width: '100%', height: '100%' })
-
-export const coverImage = style({
-	position: 'absolute',
-	inset: 0,
-	width: '100%',
-	height: '100%',
-	objectFit: 'cover'
-})
 
 export const subheading = style({ marginBottom: space[3.5] })
 

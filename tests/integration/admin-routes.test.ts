@@ -345,17 +345,20 @@ describe('case study editor', () => {
 			scope: 'media'
 		})
 		expect(
-			outcome(await run(caseEditor.actions, 'updateFigure', { key: '', title: 'T', description: '' }, params))
+			outcome(await run(caseEditor.actions, 'updateFigure', { id: '', title: 'T', description: '' }, params))
 		).toMatchObject({ scope: 'media' })
 		expect(
-			outcome(await run(caseEditor.actions, 'moveFigure', { key: 'k', direction: 'sideways' }, params))
+			outcome(await run(caseEditor.actions, 'uploadFigureImage', { id: '', title: 'T', description: '' }, params))
+		).toMatchObject({ status: 400, scope: 'media' })
+		expect(
+			outcome(await run(caseEditor.actions, 'moveFigure', { id: 'k', direction: 'sideways' }, params))
 		).toMatchObject({
 			scope: 'media'
 		})
 		expect((await caseStudies.get(study.id))?.figures).toHaveLength(1)
 	})
 
-	it('edits, moves and removes figures, deleting the removed image', async () => {
+	it('edits, moves and removes figures, keeping the stored image and deleting the removed one', async () => {
 		const { study, params } = await editor()
 		await run(
 			caseEditor.actions,
@@ -370,37 +373,52 @@ describe('case study editor', () => {
 			params
 		)
 		const [first, second] = (await caseStudies.get(study.id))?.figures ?? []
+		const firstId = first?.id ?? ''
 		const firstKey = first?.key ?? ''
 		expect([first?.alt, second?.alt]).toEqual(['A bar chart.', 'A line chart.'])
+		expect(firstId).not.toBe(second?.id)
 
 		await run(
 			caseEditor.actions,
 			'updateFigure',
-			{ key: firstKey, title: 'First', description: 'Note', alt: 'Weekly leads by reason.' },
+			{ id: firstId, key: 'forged.png', title: 'First', description: 'Note', alt: 'Weekly leads by reason.' },
 			params
 		)
+		expect((await caseStudies.get(study.id))?.figures[0]?.key).toBe(firstKey)
 		expect(
 			outcome(
 				await run(
 					caseEditor.actions,
 					'updateFigure',
-					{ key: firstKey, title: 'First', description: '', alt: ' ' },
+					{ id: firstId, title: 'First', description: '', alt: ' ' },
 					params
 				)
 			)
 		).toEqual({ status: 400, message: 'Alt text is required.', scope: 'media' })
-		await run(caseEditor.actions, 'moveFigure', { key: firstKey, direction: 'down' }, params)
+		await run(caseEditor.actions, 'moveFigure', { id: firstId, direction: 'down' }, params)
 		expect((await caseStudies.get(study.id))?.figures.map((figure) => [figure.title, figure.alt])).toEqual([
 			['Two', 'A line chart.'],
 			['First', 'Weekly leads by reason.']
 		])
+		await run(caseEditor.actions, 'moveFigure', { id: firstId, direction: 'up' }, params)
+		expect((await caseStudies.get(study.id))?.figures.map((figure) => figure.title)).toEqual(['First', 'Two'])
+		expect(
+			outcome(
+				await run(
+					caseEditor.actions,
+					'updateFigure',
+					{ id: firstId, title: 'First', description: '', alt: 'A chart.' },
+					{ id: '9999' }
+				)
+			)
+		).toMatchObject({ status: 404, scope: 'media' })
 
 		expect(
 			outcome(
 				await run(
 					caseEditor.actions,
 					'updateFigure',
-					{ key: 'missing.png', title: 'X', description: '', alt: 'A chart.' },
+					{ id: 'missing', title: 'X', description: '', alt: 'A chart.' },
 					params
 				)
 			)
@@ -409,16 +427,73 @@ describe('case study editor', () => {
 			message: 'Figure not found',
 			scope: 'media'
 		})
-		expect(outcome(await run(caseEditor.actions, 'removeFigure', { key: 'missing.png' }, params))).toMatchObject({
+		expect(outcome(await run(caseEditor.actions, 'removeFigure', { id: 'missing' }, params))).toMatchObject({
 			status: 400
 		})
+		expect(outcome(await run(caseEditor.actions, 'removeFigure', {}, params))).toEqual({
+			status: 400,
+			message: 'Figure not found',
+			scope: 'media'
+		})
+		expect(outcome(await run(caseEditor.actions, 'removeFigure', { id: firstId }, { id: '9999' }))).toMatchObject({
+			status: 404
+		})
 
-		expect(await run(caseEditor.actions, 'removeFigure', { key: firstKey }, params)).toEqual({
+		expect(await run(caseEditor.actions, 'removeFigure', { id: firstId }, params)).toEqual({
 			success: true,
 			scope: 'media'
 		})
 		expect((await caseStudies.get(study.id))?.figures.map((figure) => figure.key)).toEqual([second?.key])
 		expect(await getImage(firstKey)).toBeNull()
+	})
+
+	it('adds a figure before its image, then attaches and replaces the image', async () => {
+		const { study, params } = await editor()
+		const fields = { title: 'Pending', description: '', alt: 'A funnel chart.' }
+		expect(await run(caseEditor.actions, 'addFigure', fields, params)).toEqual({ success: true, scope: 'media' })
+		const [pending] = (await caseStudies.get(study.id))?.figures ?? []
+		const id = pending?.id ?? ''
+		expect(pending).toMatchObject({ key: null, title: 'Pending', alt: 'A funnel chart.' })
+
+		expect(outcome(await run(caseEditor.actions, 'uploadFigureImage', { id, ...fields }, params))).toEqual({
+			status: 400,
+			message: 'Choose an image to upload.',
+			scope: 'media'
+		})
+		expect(
+			outcome(
+				await run(caseEditor.actions, 'uploadFigureImage', { id: 'missing', image: pngFile(), ...fields }, params)
+			)
+		).toEqual({ status: 400, message: 'Figure not found', scope: 'media' })
+		expect(
+			outcome(await run(caseEditor.actions, 'uploadFigureImage', { id, image: pngFile(), ...fields }, { id: '9999' }))
+		).toMatchObject({ status: 404, scope: 'media' })
+
+		await run(caseEditor.actions, 'addFigure', { ...fields, title: 'Never shown' }, params)
+		expect(
+			await run(
+				caseEditor.actions,
+				'uploadFigureImage',
+				{ id, image: pngFile(), ...fields, description: 'Now shown' },
+				params
+			)
+		).toEqual({ success: true, scope: 'media' })
+		expect((await caseStudies.get(study.id))?.figures[1]).toMatchObject({ title: 'Never shown', key: null })
+		const attached = (await caseStudies.get(study.id))?.figures[0]
+		const attachedKey = attached?.key ?? ''
+		expect(attached).toMatchObject({ id, description: 'Now shown' })
+		expect(await getImage(attachedKey)).not.toBeNull()
+
+		await run(caseEditor.actions, 'uploadFigureImage', { id, image: pngFile(), ...fields }, params)
+		expect((await caseStudies.get(study.id))?.figures[0]?.key).not.toBe(attachedKey)
+		expect(await getImage(attachedKey)).toBeNull()
+
+		const unfinished = (await caseStudies.get(study.id))?.figures[1]?.id ?? ''
+		expect(await run(caseEditor.actions, 'removeFigure', { id: unfinished }, params)).toEqual({
+			success: true,
+			scope: 'media'
+		})
+		expect((await caseStudies.get(study.id))?.figures).toHaveLength(1)
 	})
 
 	it('deletes the case study and returns to the list', async () => {

@@ -3,7 +3,7 @@
 	import { tick, untrack } from 'svelte'
 	import { enhance } from '$app/forms'
 	import { page } from '$app/state'
-	import { AdminPage, CheckField, ConfirmButton, DangerZone, EntryGroup, EntryIndex, FileField, FormError, MoveButtons, SaveBar, TitleSlug } from '$lib/components/admin'
+	import { AdminPage, CheckField, ConfirmButton, DangerZone, EntryGroup, EntryIndex, FileField, FormError, ImageThumbnail, MoveButtons, SaveBar, TitleSlug } from '$lib/components/admin'
 	import Button from '$lib/components/elements/Button'
 	import Text from '$lib/components/elements/Text'
 	import TextareaField from '$lib/components/elements/TextareaField'
@@ -18,7 +18,6 @@
 
 	let { data, form }: { data: PageData; form: ActionData } = $props()
 
-	const THUMBNAIL_WIDTH = 960
 	const PREVIEW_SIZES = `(max-width: ${breakpoint.admin}) 100vw, ${layout.adminWidth}`
 
 	const study = $derived(data.study)
@@ -259,7 +258,7 @@
 		as='p'
 		class={styles.hint}
 		tone='muted'
-		variant='machine'>16:9 works best. Shown at the top of the article once uploaded.</Text>
+		variant='machine'>16:10 works best. Shown as this study's thumbnail in the home page case study list, not in the article.</Text>
 	<div
 		class={styles.card}>
 		{#if cover}
@@ -306,7 +305,7 @@
 			<Text
 				as='p'
 				tone='muted'
-				variant='machine'>No cover uploaded. The article opens on its title until one is added.</Text>
+				variant='machine'>No cover uploaded. The case study list shows an empty frame until one is added.</Text>
 		{/if}
 		<form
 			action='?/uploadCover'
@@ -352,11 +351,10 @@
 		class={styles.hint}
 		tone='muted'
 		variant='machine'>
-		Shown at the end of the article, in this order. The article has no figures section until the first one is added.
+		Shown at the end of the article, in this order. A figure stays hidden on the site until it has an image, and the article has no figures section until one does.
 	</Text>
 	<div>
-		{#each study.figures as figure, index (figure.key)}
-			{@const thumbnail = picture(figure.key, THUMBNAIL_WIDTH)}
+		{#each study.figures as figure, index (figure.id)}
 			<div
 				class={styles.dragRow}
 				data-row>
@@ -367,9 +365,9 @@
 						method='POST'
 						use:enhance={keepValues}>
 						<input
-							name='key'
+							name='id'
 							type='hidden'
-							value={figure.key} />
+							value={figure.id} />
 						<MoveButtons
 							count={study.figures.length}
 							{index}
@@ -380,6 +378,7 @@
 				<form
 					action='?/updateFigure'
 					class={styles.itemCard}
+					enctype='multipart/form-data'
 					method='POST'
 					use:enhance={keepValues}>
 					<EntryGroup
@@ -389,46 +388,60 @@
 							prefix='FIG.' />
 						<div
 							class={styles.figureRow}>
-							<img
-								alt=''
-								class={styles.figureThumb}
-								decoding='async'
-								height='1000'
-								loading='lazy'
-								sizes={styles.figureThumbSizes}
-								src={thumbnail.src}
-								srcset={thumbnail.srcset}
-								width='1600' />
+							<ImageThumbnail
+								imageKey={figure.key} />
 							<div>
 								<input
-									name='key'
+									name='id'
 									type='hidden'
-									value={figure.key} />
+									value={figure.id} />
 								<TextField
 									compact
-									id={`figure-title-${figure.key}`}
+									id={`figure-title-${figure.id}`}
 									label='Title'
 									name='title'
 									required
 									value={figure.title} />
 								<TextareaField
 									compact
-									id={`figure-description-${figure.key}`}
+									id={`figure-description-${figure.id}`}
 									label='Description'
 									name='description'
 									rows={3}
 									value={figure.description} />
 								<TextareaField
 									compact
-									id={`figure-alt-${figure.key}`}
+									id={`figure-alt-${figure.id}`}
 									label='Alt text'
 									maxlength={300}
 									name='alt'
 									required
 									rows={2}
 									value={figure.alt} />
+								{#if !figure.key}
+									<Text
+										as='p'
+										class={styles.hint}
+										tone='muted'
+										variant='machine'>No image yet, so this figure is hidden on the site.</Text>
+								{/if}
 								<div
-									class={styles.row}>
+									class={[styles.row, styles.stackTop]}>
+									<FileField
+										context={`for ${figure.title || `figure ${index + 1}`}`}
+										id={`figure-image-${figure.id}`}
+										label={figure.key ? 'Replace image' : 'Choose image'}
+										name='image' />
+									<Button
+										aria-label={`Upload image for ${figure.title || `figure ${index + 1}`}`}
+										class={styles.squareTouch}
+										formaction='?/uploadFigureImage'
+										size='small'
+										type='submit'
+										variant='outline'>Upload</Button>
+								</div>
+								<div
+									class={[styles.row, styles.stackTop]}>
 									<Button
 										aria-label={`Save Figure ${figure.title || index + 1}`}
 										class={styles.squareTouch}
@@ -459,15 +472,14 @@
 			class={styles.field}>
 			<Text
 				aria-hidden='true'
-				class={styles.requiredLabel}
+				class={styles.label}
 				tone='muted'
-				variant='label'>Image</Text>
+				variant='label'>Image (optional)</Text>
 			<FileField
 				context='for the new figure'
 				id='figure-new-image'
 				label='Choose image'
-				name='image'
-				required />
+				name='image' />
 		</div>
 		<div
 			class={styles.twoColumn}>
