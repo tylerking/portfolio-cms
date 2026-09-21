@@ -46,7 +46,7 @@
 		"@vanilla-extract/recipes": "^0.5.7",
 		"@vanilla-extract/vite-plugin": "^5.2.6",
 		"@vitest/coverage-v8": "^5.0.0",
-		"dotenv": "^17.4.2",
+		"dotenv": "^18.0.0",
 		"drizzle-kit": "^0.31.10",
 		"jscpd": "^5.2.0",
 		"jsdom": "^30.0.1",
